@@ -47,7 +47,7 @@ public class Program {
                 System.out.println(e.getMessage());
             }
 
-            
+
 
             // compare our file.Sign among signatures
             System.out.println(signature.get(fileSign));
