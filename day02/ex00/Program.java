@@ -1,68 +1,79 @@
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
 import java.util.*;
-
-
 public class Program {
 
     private static final int FILE_HEADER_SIZE = 8;
-    public static void main (String[] args) {
+    private static final String SIGN_FILE_NAME = "signatures.txt";
+    private static final String RESULT_FILE_NAME = "result.txt";
+    private static FileOutputStream result;
+    private static Map<String, String> signature;
 
-        // open file
-        File file = new File("./signatures.txt");
-        Map<ArrayList<String>, String> signature = new HashMap<>();
+    public static void main (String[] args) {
+        signature= new HashMap<>();
         try {
-            Scanner sc = new Scanner(file);
-            while (sc.hasNextLine()) {
-                String tmp = sc.nextLine();
-                signature.put(getValue(tmp), getKey(tmp));        // save info to map
-            }
-            System.out.println(signature);
+            result = new FileOutputStream(RESULT_FILE_NAME);
+            readFile();
+            checkFilesSignatureFromSTDIN();
+            result.close();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
 
+    private static void readFile() throws IOException {
+        FileInputStream signFile = new FileInputStream(SIGN_FILE_NAME);
+        Scanner sc = new Scanner(signFile);
+        while (sc.hasNextLine()) {
+            String tmp = sc.nextLine();
+            if ("".equals(tmp))
+                continue;
+            signature.put(getKey(tmp), getValue(tmp));
+        }
+        signFile.close();
+    }
 
-        // check file from stdin
+    private static void checkFilesSignatureFromSTDIN () {
         byte[] buf = new byte[FILE_HEADER_SIZE];
-        ArrayList<String> fileSign = new ArrayList<>();
         Scanner sc = new Scanner(System.in);
         while (sc.hasNextLine()) {
+            String fileToCheckSign = "";
+            String fileNameToCheck = sc.nextLine();
+            if (fileNameToCheck.equals("42"))
+                break;
+
             try {
-                String fileNameToCheck = sc.nextLine();
-                if (fileNameToCheck.equals("42"))
-                    break;
-                File fileToCheck = new File(fileNameToCheck);
-                FileInputStream in = new FileInputStream(fileToCheck);
+                FileInputStream in = new FileInputStream(fileNameToCheck);
                 in.read(buf);
                 for (byte b : buf) {
-                    fileSign.add(String.format("%02X", b));
+                    fileToCheckSign += String.format("%02X", b) + " ";
                 }
-                System.out.println(fileSign);
+                if (!checkIfSignatureExist(fileToCheckSign)) {
+                    System.out.println("UNDEFINED");
+                }
+            System.out.println(fileToCheckSign);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                System.out.println("UNDEFINED");
             }
-
-
-
-            // compare our file.Sign among signatures
-            System.out.println(signature.get(fileSign));
         }
     }
 
-    private static String getKey (String line) {
-        String[] tmp = line.split(",");
-        System.out.println(tmp[0]);
-        return tmp[0];
+    private static String getKey(String line) {
+        return line.substring(line.indexOf(',') + 1).trim();
     }
 
-    private static ArrayList<String> getValue (String line) {
-        String[] tmp = line.split(",");
+    private static String getValue(String line) {
+        return line.substring(0,line.indexOf(',')).trim();
+    }
 
-        return new ArrayList<String>(Arrays.asList(tmp[1].trim().split("\\s+")));
+    private static Boolean checkIfSignatureExist(String fileToCheckSign) throws IOException {
+        for (Map.Entry<String, String> node : signature.entrySet()) {
+            if (fileToCheckSign.startsWith(node.getKey())) {
+                result.write(node.getValue().getBytes());
+                result.write('\n');
+                System.out.println("PROCESSED");
+                return true;
+            }
+        }
+        return false;
     }
 }
