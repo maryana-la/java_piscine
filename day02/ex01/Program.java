@@ -1,22 +1,25 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
-
+import java.io.FileWriter;
 import java.io.IOException;
+
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.List;
 import java.util.Arrays;
 
-import java.math.*;
+import java.lang.Math;
 
 public class Program {
     private static BufferedReader file1;
     private static BufferedReader file2;
 
-    private static HashMap<String, Integer> words1 = new HashMap<>();
-    private static HashMap<String, Integer> words2 = new HashMap<>();
-    private static Set<String> dictionary = new TreeSet<>();
+    private static final String DICTIONARY_FILE = "dictionary.txt";
+    private static final HashMap<String, Integer> words1 = new HashMap<>();
+    private static final HashMap<String, Integer> words2 = new HashMap<>();
+    private static final Set<String> dictionary = new TreeSet<>();
 
     public static void main (String[] args) {
         if (args.length != 2) {
@@ -56,21 +59,32 @@ public class Program {
             }
             i++;
         }
-
-        System.out.print("freq1 ");
-        for (int k = 0; k < freq1.length; k++)
-            System.out.print(freq1[k]);
-
-        System.out.print("\nfreq2 ");
-        for (int k = 0; k < freq2.length; k++)
-            System.out.print(freq2[k]);
-        System.out.println();
-        System.out.println("dictionary " + dictionary);
-        System.out.println("words1 " + words1);
-        System.out.println("words2 " + words2);
+//
+//        System.out.print("freq1 ");
+//        for (int k = 0; k < freq1.length; k++)
+//            System.out.print(freq1[k]);
+//
+//        System.out.print("\nfreq2 ");
+//        for (int k = 0; k < freq2.length; k++)
+//            System.out.print(freq2[k]);
+//        System.out.println();
+//        System.out.println("dictionary " + dictionary);
+//        System.out.println("words1 " + words1);
+//        System.out.println("words2 " + words2);
 
         System.out.print("Similarity = ");
         System.out.println(calculateSimilarity(freq1, freq2));
+
+        try {
+            BufferedWriter dict = new BufferedWriter(new FileWriter(DICTIONARY_FILE));
+            for (String str : dictionary) {
+                dict.write(str);
+                dict.newLine();
+            }
+            dict.close();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private static void readFileToDictionary (BufferedReader file, HashMap<String, Integer> words) throws IOException {
@@ -82,7 +96,6 @@ public class Program {
                 dictionary.addAll(temp);
                 for (String str : temp) {
                     Integer tmpInt = words.put(str, 1);
-//                    System.out.println("tmpInt" + tmpInt);
                     if (tmpInt != null) {
                         words.put(str, tmpInt + 1);
                     }
@@ -103,6 +116,8 @@ public class Program {
             mult2 += Math.pow(freq2[i],2);
         }
         denominator = (float) (Math.sqrt(mult1) * Math.sqrt(mult2));
+        if (denominator == 0)
+            return 0;
         return numerator / denominator;
     }
 
