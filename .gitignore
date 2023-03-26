@@ -8,3 +8,5 @@ day02/.DS_store
 day02/.idea
 day02/ex00/out
 day02/ex01/out
+*/.idea
+*/out

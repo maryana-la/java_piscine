@@ -18,7 +18,7 @@ class Calculate implements Runnable{
         for (int i = start; i < end; i++) {
             sum += arr[i];
         }
-        System.out.println("Thread " + position + " calculates from " + start + " to " + end);
+        System.out.printf("Thread %d: from %d to %d sum is %d\n", position, start, end - 1, sum);
         partialSums[position] = sum;
     }
 

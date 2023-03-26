@@ -19,7 +19,7 @@ public class Program {
         long[] partialSums = new long[threadCount];
         int[] arr = fillArray(arrSize);
         calculateSum (arr, threadCount, segmentSize, partialSums);
-        sumArray(partialSums, "Partial sum");
+        sumArray(partialSums, "Sum by threads");
     }
 
     private static void checkArgsValidity(String[] args) {
@@ -53,7 +53,7 @@ public class Program {
         for (int x : arr) {
             sumTmp += x;
         }
-        System.out.println("Array sum = " + sumTmp);
+        System.out.println("Array sum: " + sumTmp);
         return arr;
     }
 
