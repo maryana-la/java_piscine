@@ -1,93 +1,80 @@
-//import java.io.BufferedReader;
-//import java.io.FileReader;
-//import java.io.InputStream;
-//import java.io.IOException;
-//import java.nio.file.Files;
-//import java.nio.file.Paths;
-//import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-//
-//import java.util.ArrayList;
-//import java.util.HashMap;
-//import java.net.URI;
-//import java.util.Map;
-//
-//
-//public class Program {
-//
-//    private static final String ERROR = "Please provide valid arguments. Usage: java Program --threadsCount=NUM2";
-//    private static final String URLs_FILE_NAME = "files_urls.txt";
-//    private static final String folderToDownload = "/mnt/nfs/homes/rchelsea/Desktop/java_piscine/day03/ex03/Downloads";
-////    private static final ArrayList<String> URLs = new ArrayList<>();
-////    private static final HashMap<String, String> URLs = new HashMap<>();
-//    private static final HashMap<String, Integer> URLs = new HashMap<>();
-//
-//    public static void main(String[] args) {
-//        checkArgsValidity(args);
-//        int threadCount = getNumber(args[0]);
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+import java.util.ArrayList;
+
+public class Program {
+
+    private static final String ERROR = "Please provide valid arguments. Usage: java Program --threadsCount=NUM2";
+    private static final String URLs_FILE_NAME = "files_urls.txt";
+    private static final ArrayList<String> URLs = new ArrayList<>();
+
+    public static void main(String[] args) {
+        checkArgsValidity(args);
+        int threadCount = getNumber(args[0]);
+        try {
+            readURLsFromFile();
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+
+        Thread[] threads = new Thread[threadCount];
+        for (int i = 0; i < threadCount; i++) {
+            threads[i] = new MyThread(i, URLs);
+            threads[i].start();
+        }
+    }
+
+
+    private static void checkArgsValidity(String[] args) {
+        if (args.length != 1 || !args[0].startsWith("--threadsCount=")) {
+            System.err.println(ERROR);
+            System.exit(-1);
+        }
+    }
+
+    private static int getNumber (String num) {
+        int number = 0;
+        try {
+            number = Integer.parseInt(num.substring(num.indexOf('=') + 1));
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+            System.err.println(ERROR);
+            System.exit(-1);
+        }
+        return number;
+    }
+
+    private static void readURLsFromFile() throws Exception {
+        try (BufferedReader file = new BufferedReader(new FileReader(URLs_FILE_NAME))) {
+            while (file.ready()) {
+                String tmp = file.readLine();
+                if (!tmp.isBlank() && tmp.contains(" ")) {
+                    URLs.add(tmp);
+                }
+            }
+        }
+        System.out.println(URLs);
+    }
+
+
+//    static void startdownloading(Thread[] threads) {
+//        for (Map.Entry<String, String> x : URLs.entrySet()) {
+//            String URL = x.getValue();
+//            download(URL, folderToDownload.concat(URL.substring(URL.lastIndexOf('/'))));
+//        }
+//    }
+
+//    static void download(String url, String fileName) {
 //        try {
-//            readURLsFromFile();
+//            InputStream in = URI.create(url).toURL().openStream();
+//            Files.copy(in, Paths.get(fileName), REPLACE_EXISTING);
 //        } catch (Exception e) {
 //            System.out.println(e.getLocalizedMessage());
 //        }
-//
-//        Thread[] threads = new Thread[threadCount];
-//        for (int i = 0; i < threadCount; i++) {
-//            threads[i] = new MyThread(i, URLs);
-//            threads[i].start();
-//        }
 //    }
-//
-//
-//    private static void checkArgsValidity(String[] args) {
-//        if (args.length != 1 || !args[0].startsWith("--threadsCount=")) {
-//            System.err.println(ERROR);
-//            System.exit(-1);
-//        }
-//    }
-//
-//    private static int getNumber (String num) {
-//        int number = 0;
-//        try {
-//            number = Integer.parseInt(num.substring(num.indexOf('=') + 1));
-//        } catch (Exception e) {
-//            System.out.println(e.getLocalizedMessage());
-//            System.err.println(ERROR);
-//            System.exit(-1);
-//        }
-//        return number;
-//    }
-//
-//    private static void readURLsFromFile() throws Exception {
-//        try (BufferedReader file = new BufferedReader(new FileReader(URLs_FILE_NAME))) {
-//            while (file.ready()) {
-//                String tmp = file.readLine();
-//                if (!tmp.isBlank() && tmp.contains(" ")) {
-//                    URLs.put(tmp, 0);
-////                    URLs.put(tmp.substring(0, tmp.indexOf(' ')).trim(), tmp.substring(tmp.indexOf(' ') + 1).trim());
-//                }
-//            }
-//        }
-//        System.out.println(URLs);
-//    }
-//
-//
-////    static void startdownloading(Thread[] threads) {
-////        for (Map.Entry<String, String> x : URLs.entrySet()) {
-////            String URL = x.getValue();
-////            download(URL, folderToDownload.concat(URL.substring(URL.lastIndexOf('/'))));
-////        }
-////    }
-//
-////    static void download(String url, String fileName) {
-////        try {
-////            InputStream in = URI.create(url).toURL().openStream();
-////            Files.copy(in, Paths.get(fileName), REPLACE_EXISTING);
-////        } catch (Exception e) {
-////            System.out.println(e.getLocalizedMessage());
-////        }
-////    }
-//
-//}
+
+}
 
 
 /*
@@ -178,106 +165,106 @@ class DownloadThread implements Runnable {
 
 
 
-
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
-public class Program {
-    private static final String FILE_URLS = "files_urls.txt";
-    private static int threadsCount = 1; // default number of threads
-
-    public static void main(String[] args) {
-        parseArgs(args);
-        List<String> fileUrls = readUrlsFromFile();
-        downloadFiles(fileUrls);
-    }
-
-    private static void parseArgs(String[] args) {
-        for (String arg : args) {
-            if (arg.startsWith("--threadsCount=")) {
-                threadsCount = Integer.parseInt(arg.substring("--threadsCount=".length()));
-            }
-        }
-    }
-
-    private static List<String> readUrlsFromFile() {
-        List<String> urls = new ArrayList<>();
-        try (Scanner scanner = new Scanner(Program.class.getResourceAsStream(FILE_URLS))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                if (!line.trim().isEmpty()) {
-                    urls.add(line.trim());
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error reading file URLs: " + e.getMessage());
-        }
-        return urls;
-    }
-
-    private static void downloadFiles(List<String> urls) {
-        int filesCount = urls.size();
-        int currentFileIndex = 0;
-        List<DownloadThread> threads = new ArrayList<>(threadsCount);
-        while (currentFileIndex < filesCount || !threads.isEmpty()) {
-            if (threads.size() < threadsCount && currentFileIndex < filesCount) {
-                String url = urls.get(currentFileIndex++);
-                DownloadThread thread = new DownloadThread(url);
-                thread.start();
-                threads.add(thread);
-            } else {
-                for (int i = 0; i < threads.size(); i++) {
-                    DownloadThread thread = threads.get(i);
-                    if (!thread.isAlive()) {
-                        threads.remove(i--);
-                        System.out.printf("%s finish download file number %d%n",
-                                thread.getName(), thread.getFileNumber());
-                        if (currentFileIndex < filesCount) {
-                            String url = urls.get(currentFileIndex++);
-                            thread = new DownloadThread(url);
-                            thread.start();
-                            threads.add(thread);
-                            System.out.printf("%s start download file number %d%n",
-                                    thread.getName(), thread.getFileNumber());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private static class DownloadThread extends Thread {
-        private final String url;
-        private final int fileNumber;
-
-        public DownloadThread(String url) {
-            this.url = url;
-            this.fileNumber = ++lastFileNumber;
-        }
-
-        public int getFileNumber() {
-            return fileNumber;
-        }
-
-        @Override
-        public void run() {
-            try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-                 FileOutputStream out = new FileOutputStream("file" + fileNumber + ".dat")) {
-                byte[] dataBuffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                    out.write(dataBuffer, 0, bytesRead);
-                }
-            } catch (IOException e) {
-                System.err.printf("Error downloading file %d from %s: %s%n", fileNumber, url, e.getMessage());
-            }
-        }
-
-        private static int lastFileNumber = 0;
-    }
-}
+//
+//import java.io.BufferedInputStream;
+//import java.io.FileOutputStream;
+//import java.io.IOException;
+//import java.net.URL;
+//import java.util.ArrayList;
+//import java.util.List;
+//import java.util.Scanner;
+//
+//public class Program {
+//    private static final String FILE_URLS = "files_urls.txt";
+//    private static int threadsCount = 1; // default number of threads
+//
+//    public static void main(String[] args) {
+//        parseArgs(args);
+//        List<String> fileUrls = readUrlsFromFile();
+//        downloadFiles(fileUrls);
+//    }
+//
+//    private static void parseArgs(String[] args) {
+//        for (String arg : args) {
+//            if (arg.startsWith("--threadsCount=")) {
+//                threadsCount = Integer.parseInt(arg.substring("--threadsCount=".length()));
+//            }
+//        }
+//    }
+//
+//    private static List<String> readUrlsFromFile() {
+//        List<String> urls = new ArrayList<>();
+//        try (Scanner scanner = new Scanner(Program.class.getResourceAsStream(FILE_URLS))) {
+//            while (scanner.hasNextLine()) {
+//                String line = scanner.nextLine();
+//                if (!line.trim().isEmpty()) {
+//                    urls.add(line.trim());
+//                }
+//            }
+//        } catch (Exception e) {
+//            System.err.println("Error reading file URLs: " + e.getMessage());
+//        }
+//        return urls;
+//    }
+//
+//    private static void downloadFiles(List<String> urls) {
+//        int filesCount = urls.size();
+//        int currentFileIndex = 0;
+//        List<DownloadThread> threads = new ArrayList<>(threadsCount);
+//        while (currentFileIndex < filesCount || !threads.isEmpty()) {
+//            if (threads.size() < threadsCount && currentFileIndex < filesCount) {
+//                String url = urls.get(currentFileIndex++);
+//                DownloadThread thread = new DownloadThread(url);
+//                thread.start();
+//                threads.add(thread);
+//            } else {
+//                for (int i = 0; i < threads.size(); i++) {
+//                    DownloadThread thread = threads.get(i);
+//                    if (!thread.isAlive()) {
+//                        threads.remove(i--);
+//                        System.out.printf("%s finish download file number %d%n",
+//                                thread.getName(), thread.getFileNumber());
+//                        if (currentFileIndex < filesCount) {
+//                            String url = urls.get(currentFileIndex++);
+//                            thread = new DownloadThread(url);
+//                            thread.start();
+//                            threads.add(thread);
+//                            System.out.printf("%s start download file number %d%n",
+//                                    thread.getName(), thread.getFileNumber());
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    private static class DownloadThread extends Thread {
+//        private final String url;
+//        private final int fileNumber;
+//
+//        public DownloadThread(String url) {
+//            this.url = url;
+//            this.fileNumber = ++lastFileNumber;
+//        }
+//
+//        public int getFileNumber() {
+//            return fileNumber;
+//        }
+//
+//        @Override
+//        public void run() {
+//            try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+//                 FileOutputStream out = new FileOutputStream("file" + fileNumber + ".dat")) {
+//                byte[] dataBuffer = new byte[1024];
+//                int bytesRead;
+//                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+//                    out.write(dataBuffer, 0, bytesRead);
+//                }
+//            } catch (IOException e) {
+//                System.err.printf("Error downloading file %d from %s: %s%n", fileNumber, url, e.getMessage());
+//            }
+//        }
+//
+//        private static int lastFileNumber = 0;
+//    }
+//}
