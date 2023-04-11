@@ -1,0 +1,1 @@
+INSERT INTO Chat.User VALUES (1, "User1", "passwordSafe");
