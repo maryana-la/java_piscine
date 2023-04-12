@@ -1,4 +1,4 @@
-package src.main.java.edu.school.chat.models;
+package edu.school21.chat.models;
 
 import java.util.List;
 import java.util.ArrayList;

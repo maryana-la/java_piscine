@@ -1,4 +1,4 @@
-package src.main.java.edu.school.chat.models;
+package edu.school21.chat.models;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,7 +42,8 @@ public class Message {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof Message message)) return false;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        Message message = (Message) obj;
         return getId() == message.getId() && Objects.equals(getAuthor(), message.getAuthor()) && Objects.equals(getRoom(), message.getRoom()) && Objects.equals(getText(), message.getText()) && Objects.equals(getDateTime(), message.getDateTime());
     }
 

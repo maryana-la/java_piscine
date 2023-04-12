@@ -1,4 +1,4 @@
-package src.main.java.edu.school.chat.models;
+package edu.school21.chat.models;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -55,7 +55,9 @@ public class Chatroom {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Chatroom chatroom)) return false;
+        if (this == obj) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        Chatroom chatroom = (Chatroom) obj;
         return getId() == chatroom.getId() && Objects.equals(getName(), chatroom.getName()) && Objects.equals(getOwner(), chatroom.getOwner()) && Objects.equals(getMessageList(), chatroom.getMessageList());
     }
 
