@@ -5,5 +5,5 @@ import edu.school21.chat.models.Message;
 import java.util.Optional;
 
 public interface MessagesRepository {
-    public Optional<Message> findById(Long id);
+    Optional<Message> findById(Long id);
 }

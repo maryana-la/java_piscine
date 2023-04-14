@@ -5,19 +5,19 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Chatroom {
-    private int id;
+    private long id;
     private String name;
     private User owner;
     private List<Message> messageList;
 
-    public Chatroom(int id, String name, User owner) {
+    public Chatroom(long id, String name, User owner) {
         this.id = id;
         this.name = name;
         this.owner = owner;
         messageList = new ArrayList<>();
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -33,7 +33,7 @@ public class Chatroom {
         return messageList;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -68,11 +68,11 @@ public class Chatroom {
 
     @Override
     public String toString() {
-        return "Chatroom: " + " id=" + id + ", name=" + name + ", owner=" + owner.getLogin() + ", message list=\n" + getMessageListToString();
+        return "chat: { id=" + id + ", name=" + name + ", owner=" + owner.getLogin() + ", messages=" + getMessageListToString() + " }";
     }
     private String getMessageListToString() {
         if (messageList.size() == 0) {
-            return "";
+            return "null";
         }
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < messageList.size(); i++) {

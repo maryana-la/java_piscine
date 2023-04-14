@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class Message {
-    private final int id;
+    private final long id;
     private final User author;
     private final Chatroom room;
     private final String text;
     private final LocalDateTime dateTime;
 
-    public Message(int id, User author, Chatroom room, String text, LocalDateTime dateTime) {
+    public Message(long id, User author, Chatroom room, String text, LocalDateTime dateTime) {
         this.id = id;
         this.author = author;
         this.room = room;
@@ -19,7 +19,7 @@ public class Message {
         this.dateTime = dateTime;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -54,6 +54,6 @@ public class Message {
 
     @Override
     public String toString() {
-        return "Message: " + "id=" + id + ", author=" + author.getLogin() + ", room=" + room.getName() + ", text='" + text + '\'' + ", dateTime=" + dateTime;
+        return "Message : {\nid=" + id + "\n" + author + "\n" + room + "\ntext= '" + text + "'" + "\ntime=" + dateTime.toString() + "\n}";
     }
 }
