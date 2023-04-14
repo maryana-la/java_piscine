@@ -3,7 +3,6 @@ package edu.school21.chat.repositories;
 import edu.school21.chat.models.Message;
 import edu.school21.chat.models.User;
 import edu.school21.chat.models.Chatroom;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,12 +13,10 @@ import java.util.Optional;
 
 public class MessagesRepositoryJdbcImpl implements MessagesRepository {
 
-    private final DataSource dataSource;
     private Connection con;
     private final String databaseRequest = "SELECT * FROM chat.%s WHERE id=%d";
 
     public MessagesRepositoryJdbcImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
         try {
             con = dataSource.getConnection();
         } catch (Exception e) {

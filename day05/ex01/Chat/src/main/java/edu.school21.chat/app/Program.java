@@ -12,10 +12,8 @@ public class Program {
 
     private static HikariDataSource dataSource;
     public static void main(String[] args) {
-
         setUpConnection();
         MessagesRepository msgRepo = new MessagesRepositoryJdbcImpl(dataSource);
-
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter a message ID\n-> ");
         while (sc.hasNextLine()) {
@@ -53,3 +51,4 @@ public class Program {
         }
     }
 }
+
