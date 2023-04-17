@@ -7,8 +7,6 @@ import edu.school21.chat.repositories.MessagesRepository;
 import edu.school21.chat.repositories.MessagesRepositoryJdbcImpl;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariConfig;
-import java.util.Optional;
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 
@@ -20,33 +18,10 @@ public class Program {
         MessagesRepository msgRepo = new MessagesRepositoryJdbcImpl(dataSource);
 
         User creator = new User(2L, "user", "passwordsafe", new ArrayList<>(), new ArrayList<>());
-        User author = creator;
-        Chatroom room = new Chatroom(8L, "room", creator, new ArrayList<>());
-        Message message = new Message(null, author, room, "Hello!", LocalDateTime.now());
+        Chatroom room = new Chatroom(4L, "Picnic", creator, new ArrayList<>());
+        Message message = new Message(null, creator, room, "Hello! Test", LocalDateTime.now());
         msgRepo.save(message);
         System.out.println(message.getId()); // ex. id == 11
-
-
-
-
-
-//        Scanner sc = new Scanner(System.in);
-//        System.out.print("Enter a message ID\n-> ");
-//        while (sc.hasNextLine()) {
-//            String input = sc.nextLine();
-//            if ("exit".equals(input)) {
-//                break;
-//            }
-//            try {
-//                long num = Long.parseLong(input);
-//                Optional<Message> opt = msgRepo.findById(num);
-//                opt.ifPresent(System.out::println);
-//            }
-//            catch (Exception e) {
-//                System.out.println("Invalid number. " + e.getLocalizedMessage());
-//            }
-//            System.out.print("Enter a message ID\n-> ");
-//        }
         dataSource.close();
     }
 
