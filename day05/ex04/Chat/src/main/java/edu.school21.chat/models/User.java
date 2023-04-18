@@ -64,10 +64,20 @@ public class User {
     }
 
     public void addCreatedRooms(Chatroom newRoom) {
+        for (Chatroom x: createdRooms) {
+            if(Objects.equals(x.getId(), newRoom.getId())) {
+                return;
+            }
+        }
         createdRooms.add(newRoom);
     }
 
     public void addJoinedRooms(Chatroom newRoom) {
+        for (Chatroom x: joinedRooms) {
+            if(Objects.equals(x.getId(), newRoom.getId())) {
+                return;
+            }
+        }
         joinedRooms.add(newRoom);
     }
 

@@ -7,9 +7,9 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 
 public class UsersRepositoryJdbcImpl implements UsersRepository {
@@ -17,6 +17,7 @@ public class UsersRepositoryJdbcImpl implements UsersRepository {
     private Connection con;
     List<User> users;
     List<Chatroom> chats;
+
     public UsersRepositoryJdbcImpl(DataSource dataSource) {
         try {
             con = dataSource.getConnection();
@@ -55,43 +56,52 @@ public class UsersRepositoryJdbcImpl implements UsersRepository {
             statement.setInt(1, size * page - size);
             statement.setInt(2, size);
             ResultSet rs = statement.executeQuery();
-            if (!rs.next()){
-                throw new SQLException("Error. Cannot proceed with SQL request.");
-            }
             while (rs.next()) {
-                User tmp = new User(rs.getLong("us_id"), rs.getString("login"), rs.getString("password"));
-                if (!users.contains(tmp)) {
-                    users.add(tmp);
-                }
+                User newUser = new User(rs.getLong("us_id"), rs.getString("login"), rs.getString("password"));
+                User usToUpd = getIfcontainsUserId(newUser);
+
                 // deal with created chats
                 if (rs.getLong("created_chat_id") != 0) {
                     int chat_id = rs.getInt("created_chat_id");
-                    Chatroom created = new Chatroom((long)chat_id, rs.getString("created_chat_name"), tmp);
-                    if (chats.get(chat_id) == null) {
-                        chats.add(chat_id, created);
-                        tmp.addCreatedRooms(created);
-                    } else if (chats.get(chat_id).getOwner() == null) {
-                        chats.get(chat_id).setOwner(tmp);
-                        tmp.addCreatedRooms(created);
+                    Chatroom created = new Chatroom((long)chat_id, rs.getString("created_chat_name"), usToUpd);
+                    Chatroom checkIfChatExists = getIfChatExists(created);
+                    if (checkIfChatExists.getOwner() == null) {
+                        checkIfChatExists.setOwner(usToUpd);
                     }
+                    usToUpd.addCreatedRooms(created);
                 }
 
                 // deal with joined chats
                 if (rs.getLong("joined_chat") != 0) {
                     int joined_id = rs.getInt("joined_chat");
                     Chatroom joined = new Chatroom((long) joined_id, rs.getString("joined_chat_name"), null);
-                    if (chats.get(joined_id) == null) {
-                        chats.add(joined_id, joined);
-                        tmp.addJoinedRooms(joined);
-                    }
+                    Chatroom checkIfChatExists = getIfChatExists(joined);
+                    usToUpd.addJoinedRooms(joined);
                 }
-
             }
-
         } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
         }
-
         return users;
+    }
+
+    private User getIfcontainsUserId(User newUser) {
+        for (User x : users) {
+            if (Objects.equals(x.getId(), newUser.getId())) {
+                return x;
+            }
+        }
+        users.add(newUser);
+        return newUser;
+    }
+
+    private Chatroom getIfChatExists(Chatroom newChat) {
+        for (Chatroom tmp : chats) {
+            if (Objects.equals(tmp.getId(), newChat.getId())) {
+                return tmp;
+            }
+        }
+        chats.add(newChat);
+        return newChat;
     }
 }
